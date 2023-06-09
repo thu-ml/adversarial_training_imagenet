@@ -20,13 +20,22 @@ from data.objectnet_utils import ObjectNetDataset, imageNetIDToObjectNetID
 from data.imagenet_real_utils import ImageFolderReturnsPath, real_labels
 from data.dataset import ImageNet
 from model.resnet import resnet50, wide_resnet50_2
-from model.resnet_denoise import get_FD
+from model.resnet_denoise import resnet152_fd
 from model import vit_mae
 from model.model_zoo import model_zoo
+import gdown
 
 def get_model(model_name):
     backbone=model_zoo[model_name]['model']
-    ckpt_dir=model_zoo[model_name]['ckpt']
+    url = model_zoo[model_name]['url']
+
+    src_path='./src_ckpt'
+    ckpt_name=f'{model_name}_checkpoint.pth'
+    ckpt_dir=os.path.join(src_path, ckpt_name)
+    ckpt_list=os.listdir(src_path)
+    if ckpt_name not in ckpt_list:
+        gdown.download(url, ckpt_dir, quiet=False)
+    
     mean=model_zoo[model_name]['mean']
     std=model_zoo[model_name]['std']
     pretrained=model_zoo[model_name]['pretrained']
@@ -37,7 +46,7 @@ def get_model(model_name):
     elif backbone=='wide_resnet50_2_rl':
         model=wide_resnet50_2()
     elif backbone=='resnet152_fd':
-        model = get_FD()
+        model = resnet152_fd()
     elif backbone=='vit_base_patch16' or backbone=='vit_large_patch16':
         model=vit_mae.__dict__[backbone](num_classes=1000, global_pool='')
     else:

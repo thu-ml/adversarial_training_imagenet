@@ -14,44 +14,12 @@ from timm.utils import AverageMeter, reduce_tensor, accuracy
 from utils import random_seed, NormalizeByChannelMeanStd, distributed_init
 from data.dataset import ImageNet
 from model.resnet import resnet50, wide_resnet50_2
-from model.resnet_denoise import get_FD
+from model.resnet_denoise import resnet152_fd
 from model import vit_mae
 from model.model_zoo import model_zoo
 
-# def get_model(model_name):
-#     backbone=model_zoo[model_name]['model']
-#     ckpt_dir=model_zoo[model_name]['ckpt']
-#     mean=model_zoo[model_name]['mean']
-#     std=model_zoo[model_name]['std']
-#     pretrained=model_zoo[model_name]['pretrained']
-#     act_gelu=model_zoo[model_name]['act_gelu']
-    
-#     if backbone=='resnet50_rl':
-#         model=resnet50()
-#     elif backbone=='wide_resnet50_2_rl':
-#         model=wide_resnet50_2()
-#     elif backbone=='resnet152_fd':
-#         model = get_FD()
-#     elif backbone=='vit_base_patch16' or backbone=='vit_large_patch16':
-#         model=vit_mae.__dict__[backbone](num_classes=1000, global_pool='')
-#     else:
-#         model_kwargs=dict({'num_classes': 1000})
-#         if act_gelu:
-#             model_kwargs['act_layer']=nn.GELU
-#         model = create_model(backbone, pretrained=pretrained, **model_kwargs)
-    
-#     if not pretrained:
-#         ckpt=torch.load(ckpt_dir, map_location='cpu')
-#         model.load_state_dict(ckpt)
-
-#     normalize = NormalizeByChannelMeanStd(mean=mean, std=std)
-#     model = torch.nn.Sequential(normalize, model)
-#     return model
-
 def get_model(model_name):
     backbone=model_zoo[model_name]['model']
-
-    # ckpt_dir=model_zoo[model_name]['ckpt']
     url = model_zoo[model_name]['url']
 
     src_path='./src_ckpt'
@@ -71,7 +39,7 @@ def get_model(model_name):
     elif backbone=='wide_resnet50_2_rl':
         model=wide_resnet50_2()
     elif backbone=='resnet152_fd':
-        model = get_FD()
+        model = resnet152_fd()
     elif backbone=='vit_base_patch16' or backbone=='vit_large_patch16':
         model=vit_mae.__dict__[backbone](num_classes=1000, global_pool='')
     else:

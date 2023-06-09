@@ -23,7 +23,7 @@ from model.model_zoo import model_zoo
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__name__))))
 
-from ares.algo_set.attack_torch import FGSM, MIM, DI2FGSM, TIFGSM, SI_NI_FGSM, VMI_fgsm
+from ares_attack_torch import FGSM, MIM, DI2FGSM, TIFGSM, SI_NI_FGSM, VMI_fgsm
 
 def generate_attacker(args, net):
     if args.attack_name == 'fgsm':
@@ -31,7 +31,7 @@ def generate_attacker(args, net):
     elif args.attack_name == 'mim':
         attack = MIM(net, epsilon=args.eps, stepsize=args.stepsize, steps=args.steps, decay_factor=args.decay_factor)
     elif args.attack_name == 'dim':
-        attack = DI_FGSM(net, eps=args.eps, stepsize=args.stepsize, steps=args.steps, decay=args.decay_factor, 
+        attack = DI2FGSM(net, eps=args.eps, stepsize=args.stepsize, steps=args.steps, decay=args.decay_factor, 
                             resize_rate=args.resize_rate, diversity_prob=args.diversity_prob)
     elif args.attack_name == 'tim':
         attack = TIFGSM(net, kernel_name=args.kernel_name, len_kernel=args.len_kernel, nsig=args.nsig, 
@@ -46,40 +46,8 @@ def generate_attacker(args, net):
     return attack
 
 
-# def get_model(model_name):
-#     backbone=model_zoo[model_name]['model']
-#     ckpt_dir=model_zoo[model_name]['ckpt']
-#     mean=model_zoo[model_name]['mean']
-#     std=model_zoo[model_name]['std']
-#     pretrained=model_zoo[model_name]['pretrained']
-#     act_gelu=model_zoo[model_name]['act_gelu']
-    
-#     if backbone=='resnet50_rl':
-#         model=resnet50()
-#     elif backbone=='wide_resnet50_2_rl':
-#         model=wide_resnet50_2()
-#     elif backbone=='resnet152_fd':
-#         model = get_FD()
-#     elif backbone=='vit_base_patch16' or backbone=='vit_large_patch16':
-#         model=vit_mae.__dict__[backbone](num_classes=1000, global_pool='')
-#     else:
-#         model_kwargs=dict({'num_classes': 1000})
-#         if act_gelu:
-#             model_kwargs['act_layer']=nn.GELU
-#         model = create_model(backbone, pretrained=pretrained, **model_kwargs)
-    
-#     if not pretrained:
-#         ckpt=torch.load(ckpt_dir, map_location='cpu')
-#         model.load_state_dict(ckpt)
-
-#     normalize = NormalizeByChannelMeanStd(mean=mean, std=std)
-#     model = torch.nn.Sequential(normalize, model)
-#     return model
-
 def get_model(model_name):
     backbone=model_zoo[model_name]['model']
-
-    # ckpt_dir=model_zoo[model_name]['ckpt']
     url = model_zoo[model_name]['url']
 
     src_path='./src_ckpt'

@@ -3,6 +3,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+__all__ = ['resnet152_fd', ]
+
+
 def tf_pad(x, kernel_size=3, stride=2):
     """For stride = 2 or stride = 3"""
     if x.shape[2] % stride == 0:
@@ -182,7 +185,11 @@ class ResNetDenoiseModel(nn.Module):
         x = self.linear(x)
         return x 
 
-def get_FD():
-    model = ResNetDenoiseModel(Bottleneck, [3, 8, 36, 3], denoise_mode=True)
-
+def _resnet(arch, block, layers, **kwargs):
+    model = ResNetDenoiseModel(block, layers, **kwargs)
+    
     return model
+
+def resnet152_fd(**kwargs):
+    kwargs['denoise'] = True
+    return _resnet('resnet152_fd', Bottleneck, [3, 8, 36, 3], **kwargs)
